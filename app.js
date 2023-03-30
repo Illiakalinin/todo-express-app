@@ -1,69 +1,32 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-const { format } = require('date-fns');
+const { validate, errorHandlers } = require('./middleware');
 
-const tasksDB = [
-  {
-    id: 0,
-    name: 'bananas',
-    createdAt: '2023-03-01',
-    isDone: false,
-  },
-  {
-    id: 1,
-    name: 'apples',
-    createdAt: '2023-02-28',
-    isDone: true,
-  },
-];
-class TasksDB {
-  constructor (arr) {
-    this.tasks = [...arr];
-  }
-
-  createTask (newTask) {
-    this.tasks.push({
-      ...newTask,
-      id: uuidv4(),
-      createdAt: new Date(),
-      isDone: false,
-    });
-    return this.tasks[this.tasks.length - 1];
-  }
-
-  getTasks () {
-    return [...this.tasks];
-  }
-
-  getTaskById (id) {
-    const foundIndex = this.tasks.findIndex(t => t.id === Number(id));
-    return foundIndex === -1 ? null : this.tasks[foundIndex];
-  }
-}
-const tasksDbInstace = new TasksDB(tasksDB);
+const { todosController } = require('./controllers');
 
 const app = express();
+
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('some text');
-});
+app.get(
+  '/',
+  (req, res, next) => {
+    next();
+  },
+  (req, res) => {
+    res.send('some text');
+  }
+);
 
-app.get('/tasks', (req, res) => {
-  const tasks = tasksDbInstace.getTasks();
-  res.status(200).send(tasks);
-});
+app.get('/tasks', todosController.getTasks);
 
-app.post('/tasks', (req, res) => {
-  const createdTask = tasksDbInstace.createTask(req.body);
-  res.status(201).send(createdTask);
-});
+app.post('/tasks', validate.validateTaskOnCreate, todosController.createTask);
 
-// const createdTask = tasksDbInstace.createTask({
-//   name: 'Water',
-//   createdAt: new Date(),
-// });
+app.patch(
+  '/tasks/:id',
+  validate.validateTaskOnUpdate,
+  todosController.updateTaskById
+);
 
-// console.log('task :>> ', createdTask);
+app.use(errorHandlers.validationErrorHandler, errorHandlers.errorHandler);
 
 module.exports = app;
