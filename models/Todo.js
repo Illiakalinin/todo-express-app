@@ -1,5 +1,4 @@
 const { v4: uuidv4 } = require('uuid');
-const { format } = require('date-fns');
 
 const tasksDB = [
   {
@@ -50,6 +49,11 @@ class TasksDB {
     }
 
     return foundTaskIndex === -1 ? null : this.tasks[foundTaskIndex];
+  }
+
+  deleteTaskById (id) {
+    const foundTaskIndex = this.tasks.findIndex(t => t.id === id);
+    return foundTaskIndex === -1 ? null : this.tasks.splice(foundTaskIndex, 1);
   }
 }
 
