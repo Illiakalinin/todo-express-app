@@ -21,11 +21,15 @@ app.get('/tasks', todosController.getTasks);
 
 app.post('/tasks', validate.validateTaskOnCreate, todosController.createTask);
 
+app.get('/tasks/:id', todosController.getTaskByid);
+
 app.patch(
   '/tasks/:id',
   validate.validateTaskOnUpdate,
   todosController.updateTaskById
 );
+
+app.delete('/tasks/:id', todosController.deleteTaskById);
 
 app.use(errorHandlers.validationErrorHandler, errorHandlers.errorHandler);
 
