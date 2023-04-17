@@ -13,6 +13,15 @@ module.exports.createTask = (req, res) => {
   res.status(201).send(createdTask);
 };
 
+module.exports.getTaskByid = (req, res, next) => {
+  const { id } = req.params;
+  const foundTask = TaskDB.getTaskById(id);
+  if (foundTask) {
+    return res.status(200).send(foundTask);
+  }
+  next(createError(404, 'Task Not Found'));
+};
+
 module.exports.updateTaskById = (req, res, next) => {
   const {
     params: { id },
@@ -23,6 +32,15 @@ module.exports.updateTaskById = (req, res, next) => {
 
   if (updatedTask) {
     return res.status(200).send(updatedTask);
+  }
+  next(createError(404, 'Task Not Found'));
+};
+
+module.exports.deleteTaskById = (req, res, next) => {
+  const { id } = req.params;
+  const deleteTask = TaskDB.deleteTaskById(id);
+  if (deleteTask) {
+    return res.status(204).send();
   }
   next(createError(404, 'Task Not Found'));
 };
